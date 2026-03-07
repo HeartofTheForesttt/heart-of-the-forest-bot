@@ -14,6 +14,23 @@ const client = new Client({
 let data = JSON.parse(fs.readFileSync("./data.json", "utf8"));
 
 function saveData() {
+  async function updateForestHeart(client) {
+  const channel = await client.channels.fetch(SCOREBOARD_CHANNEL);
+
+  if (!scoreboardMessage) {
+    const messages = await channel.messages.fetch({ limit: 10 });
+    scoreboardMessage = messages.find(m => m.author.id === client.user.id);
+  }
+
+  if (!scoreboardMessage) return;
+
+  await scoreboardMessage.edit(`💚🌳 **Heart of the Forest** 🌳💚
+
+🧚‍♀️✨ Sprite Magic: ${data.server.sprites}
+👹🍂 Gremlin Mischief: ${data.server.gremlins}
+
+🌳 The forest listens... 💚👂✨`);
+}
   fs.writeFileSync("./data.json", JSON.stringify(data, null, 2));
 }
 
