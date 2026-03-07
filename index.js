@@ -1,5 +1,7 @@
 const { Client, GatewayIntentBits } = require("discord.js");
 const fs = require("fs");
+const SCOREBOARD_CHANNEL = "FOREST_CHANNEL_ID";
+let scoreboardMessage = null;
 
 const client = new Client({
   intents: [
