@@ -100,6 +100,7 @@ You awaken as a **🧚‍♀️ Spellbound Sprite**
 
   // 👹 RUSTLE (Gremlins)
   if (message.content === "!rustle") {
+    await updateForestHeart(client);
 
     if (user.faction === null) {
       user.faction = "gremlin";
