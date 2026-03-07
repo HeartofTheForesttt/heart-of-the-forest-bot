@@ -1,7 +1,7 @@
 const { Client, GatewayIntentBits } = require("discord.js");
 const fs = require("fs");
 
-const SCOREBOARD_CHANNEL = "PASTE_YOUR_FOREST_HEART_CHANNEL_ID";
+const SCOREBOARD_CHANNEL = "1479448918071836764";
 let scoreboardMessage = null;
 
 const client = new Client({
@@ -18,7 +18,7 @@ function saveData() {
   fs.writeFileSync("./data.json", JSON.stringify(data, null, 2));
 }
 
-async function updateForestHeart(client) {
+async function updateForestHeart() {
 
   const channel = await client.channels.fetch(SCOREBOARD_CHANNEL);
 
@@ -59,7 +59,7 @@ client.on("messageCreate", async (message) => {
 
 
 
-  // 🌳 WHISPER (SPRITES)
+  // 🧚 WHISPER (SPRITES)
 
   if (message.content === "!whisper") {
 
@@ -67,15 +67,14 @@ client.on("messageCreate", async (message) => {
     user.points += 1;
 
     saveData();
-
-    await updateForestHeart(client);
+    await updateForestHeart();
 
     message.reply("🧚‍♀️ Sprite magic flickers through the trees...");
   }
 
 
 
-  // 🌳 RUSTLE (GREMLINS)
+  // 👹 RUSTLE (GREMLINS)
 
   if (message.content === "!rustle") {
 
@@ -83,29 +82,32 @@ client.on("messageCreate", async (message) => {
     user.points += 1;
 
     saveData();
-
-    await updateForestHeart(client);
+    await updateForestHeart();
 
     message.reply("👹 Gremlins rustle through the bushes...");
   }
 
 
 
-  // 🌳 HEART (SHOW SCOREBOARD)
+  // 🌳 HEART (CREATE SCOREBOARD MESSAGE)
 
   if (message.content === "!heart") {
 
-    message.reply(`💚🌳 **Heart of the Forest** 🌳💚
+    const channel = await client.channels.fetch(SCOREBOARD_CHANNEL);
+
+    scoreboardMessage = await channel.send(`💚🌳 **Heart of the Forest** 🌳💚
 
 🧚‍♀️✨ Sprite Magic: ${data.server.sprites}
 👹🍂 Gremlin Mischief: ${data.server.gremlins}
 
 🌳 Deep within the forest, a quiet pulse stirs...`);
+
+    return;
   }
 
 
 
-  // 🌳 NATURE (PERSONAL STATS)
+  // 🌿 NATURE (PERSONAL STATS)
 
   if (message.content === "!nature") {
 
