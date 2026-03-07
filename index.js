@@ -76,6 +76,7 @@ Type **!rustle** to awaken as a 👹 Feral Gremlin`
 
       data.server.sprites += 1;
       saveData();
+      await updateForestHeart(client);
 
       return message.reply(
 `🌳 Moon Wanderer fades away...
