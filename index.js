@@ -2,6 +2,7 @@ const { Client, GatewayIntentBits } = require("discord.js");
 const fs = require("fs");
 
 const SCOREBOARD_CHANNEL = "1479448918071836764";
+
 let scoreboardMessage = null;
 
 const client = new Client({
@@ -32,13 +33,18 @@ async function updateForestHeart() {
   await scoreboardMessage.edit(`💚🌳 **Heart of the Forest** 🌳💚
 
 🧚‍♀️✨ Sprite Magic: ${data.server.sprites}
+
 👹🍂 Gremlin Mischief: ${data.server.gremlins}
 
 🌳 The forest listens... 💚👂✨`);
 }
 
-client.once("ready", () => {
+client.once("ready", async () => {
+
   console.log("🌳 Heart of the Forest awakens...");
+
+  await updateForestHeart();
+
 });
 
 client.on("messageCreate", async (message) => {
@@ -49,7 +55,7 @@ client.on("messageCreate", async (message) => {
 
   if (!data.users[userId]) {
     data.users[userId] = {
-      faction: "wanderer",
+      faction: "moon",
       points: 0,
       level: 1
     };
@@ -57,57 +63,34 @@ client.on("messageCreate", async (message) => {
 
   const user = data.users[userId];
 
-
-
-  // 🧚 WHISPER (SPRITES)
-
   if (message.content === "!whisper") {
 
     data.server.sprites += 1;
-    user.points += 1;
-
     saveData();
+
     await updateForestHeart();
 
-    message.reply("🧚‍♀️ Sprite magic flickers through the trees...");
+    return message.reply("🧚‍♀️ A sprite whisper echoes through the canopy...");
   }
-
-
-
-  // 👹 RUSTLE (GREMLINS)
 
   if (message.content === "!rustle") {
 
     data.server.gremlins += 1;
-    user.points += 1;
-
     saveData();
+
     await updateForestHeart();
 
-    message.reply("👹 Gremlins rustle through the bushes...");
+    return message.reply("👹 Gremlins rustle through the undergrowth...");
   }
-
-
-
-  // 🌳 HEART (CREATE SCOREBOARD MESSAGE)
 
   if (message.content === "!heart") {
 
-    const channel = await client.channels.fetch(SCOREBOARD_CHANNEL);
+    return message.reply(`💚🌳 **Heart of the Forest** 🌳💚
 
-    scoreboardMessage = await channel.send(`💚🌳 **Heart of the Forest** 🌳💚
+🧚‍♀️ Sprite Magic: ${data.server.sprites}
 
-🧚‍♀️✨ Sprite Magic: ${data.server.sprites}
-👹🍂 Gremlin Mischief: ${data.server.gremlins}
-
-🌳 Deep within the forest, a quiet pulse stirs...`);
-
-    return;
+👹 Gremlin Mischief: ${data.server.gremlins}`);
   }
-
-
-
-  // 🌿 NATURE (PERSONAL STATS)
 
   if (message.content === "!nature") {
 
@@ -118,7 +101,7 @@ client.on("messageCreate", async (message) => {
         ? "👹 Feral Gremlin"
         : "🌙 Moon Wanderer";
 
-    message.reply(`🌳 **Your True Nature**
+    return message.reply(`🌳 **Your True Nature**
 
 Faction: ${factionName}
 Points: ${user.points}
