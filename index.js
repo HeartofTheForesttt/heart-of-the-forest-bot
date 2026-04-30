@@ -62,7 +62,7 @@ client.on("messageCreate", async (message) => {
   ) {
     const pixieMessage = message.content.slice(7);
     const pixieChannel = message.guild.channels.cache.find(
-      (ch) => ch.name === "pixie-post"
+    const pixieChannel = message.guild.channels.cache.get("1478863772998434839");
     );
     const openings = [
       "🌸 *the pixies flutter... a message arrives from the distant realm...*",
