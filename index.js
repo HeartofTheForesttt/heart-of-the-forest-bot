@@ -85,5 +85,5 @@ client.on("messageCreate", async (message) => {
 
   if (!data.users[userId]) {
     data.users[userId] = {
-      faction: "
+      faction: "",
          
