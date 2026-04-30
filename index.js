@@ -166,4 +166,4 @@ client.on("messageCreate", async (message) => {
       await message.delete();
     }
     return;
-  }
+  }https://discord.com/channels/1058004349747466240/1479228710417596519/1499245854052192319
