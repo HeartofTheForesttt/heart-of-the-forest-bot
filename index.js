@@ -54,7 +54,6 @@ client.on("messageCreate", async (message) => {
 
   const isAdmin = message.member.permissions.has(PermissionsBitField.Flags.Administrator);
 
-  // !pixie command
   if (
     message.content.startsWith("!pixie ") &&
     isAdmin &&
@@ -62,7 +61,6 @@ client.on("messageCreate", async (message) => {
   ) {
     const pixieMessage = message.content.slice(7);
     const pixieChannel = message.guild.channels.cache.get("1478863772998434839");
-    );
     const openings = [
       "🌸 *the pixies flutter... a message arrives from the distant realm...*",
       "🌺 *the Goddess stirs in her distant realm. the pixies carry her words...*",
@@ -80,8 +78,7 @@ client.on("messageCreate", async (message) => {
       await message.reply("❌ Could not find the pixie-post channel.");
     }
     return;
-  }// !setscoreboard command
-  if (message.content === "!setscoreboard" && isAdmin) {
+  }if (message.content === "!setscoreboard" && isAdmin) {
     const sent = await message.channel.send(
       `🌿🍀 **Heart of the Forest** 🍀🌿\n` +
       `🌟 Sprite Magic: ${data.server.sprites}\n` +
@@ -113,7 +110,6 @@ client.on("messageCreate", async (message) => {
 
   const user = data.users[userId];
 
-  // Session reset after 30 minutes
   if (user.sessionStart && now - user.sessionStart > 30 * 60 * 1000) {
     user.spriteSignals = 0;
     user.gremlinSignals = 0;
@@ -124,13 +120,11 @@ client.on("messageCreate", async (message) => {
 
   if (!user.sessionStart) user.sessionStart = now;
 
-  // Sprite signals
   if (message.reference) user.spriteSignals += 1;
   if (user.lastMessageTime && now - user.lastMessageTime > 2 * 60 * 1000) {
     user.spriteSignals += 1;
   }
 
-  // Gremlin signals
   if (message.attachments.size > 0) user.gremlinSignals += 1;
   user.messageCount += 1;
   if (user.lastMessageTime && now - user.lastMessageTime < 10000) {
@@ -141,7 +135,6 @@ client.on("messageCreate", async (message) => {
 
   message.react("🌿").catch(() => {});
 
-  // Faction assignment
   if (!user.faction && (user.spriteSignals + user.gremlinSignals) >= 10) {
     if (user.spriteSignals > user.gremlinSignals) {
       user.faction = "sprite";
