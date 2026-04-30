@@ -1,8 +1,6 @@
 const { Client, GatewayIntentBits, PermissionsBitField } = require("discord.js");
 const fs = require("fs");
 
-// ─── Client Setup ────────────────────────────────────────────────────────────
-
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -10,8 +8,6 @@ const client = new Client({
     GatewayIntentBits.MessageContent,
   ],
 });
-
-// ─── Data Persistence ────────────────────────────────────────────────────────
 
 const dataFile = "data.json";
 
@@ -33,11 +29,8 @@ function saveData() {
   fs.writeFileSync(dataFile, JSON.stringify(data, null, 2));
 }
 
-// ─── Scoreboard ──────────────────────────────────────────────────────────────
-
 async function updateScoreboard() {
   if (!data.scoreboardChannelId || !data.scoreboardMessageId) return;
-
   try {
     const channel = await client.channels.fetch(data.scoreboardChannelId);
     const message = await channel.messages.fetch(data.scoreboardMessageId);
@@ -52,32 +45,25 @@ async function updateScoreboard() {
   }
 }
 
-// ─── Bot Ready ───────────────────────────────────────────────────────────────
-
-client.once("ready", () => {
+client.once("clientReady", () => {
   console.log("🌲 Heart of the Forest awakens...");
 });
-
-// ─── Message Handler ─────────────────────────────────────────────────────────
 
 client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
 
   const isAdmin = message.member.permissions.has(PermissionsBitField.Flags.Administrator);
 
-  // ── !pixie command ──────────────────────────────────────────────────────────
-  // Usage: type !pixie [message] in spell-lab → posts to pixie-post
+  // !pixie command
   if (
     message.content.startsWith("!pixie ") &&
     isAdmin &&
     message.channel.name === "spell-lab"
   ) {
-    const pixieMessage = message.content.slice(7); // strip "!pixie "
-
+    const pixieMessage = message.content.slice(7);
     const pixieChannel = message.guild.channels.cache.find(
       (ch) => ch.name === "pixie-post"
     );
-
     const openings = [
       "🌸 *the pixies flutter... a message arrives from the distant realm...*",
       "🌺 *the Goddess stirs in her distant realm. the pixies carry her words...*",
@@ -86,9 +72,7 @@ client.on("messageCreate", async (message) => {
       "🍃 *the Goddess tends to distant realms. but she has not forgotten this forest. her message arrives now...*",
       "🌺 *even from afar, the Goddess watches. tonight she speaks through the pixies...*",
     ];
-
     const randomOpening = openings[Math.floor(Math.random() * openings.length)];
-
     if (pixieChannel) {
       await pixieChannel.send(`${randomOpening}\n\n${pixieMessage}`);
       await message.reply("🌟 The pixies have spoken.");
@@ -96,9 +80,8 @@ client.on("messageCreate", async (message) => {
     } else {
       await message.reply("❌ Could not find the pixie-post channel.");
     }
-
     return;
-  }// ── !setscoreboard command ──────────────────────────────────────────────────
+  }// !setscoreboard command
   if (message.content === "!setscoreboard" && isAdmin) {
     const sent = await message.channel.send(
       `🌿🍀 **Heart of the Forest** 🍀🌿\n` +
@@ -106,21 +89,16 @@ client.on("messageCreate", async (message) => {
       `👺 Gremlin Mischief: ${data.server.gremlins}\n\n` +
       `🌲 The forest listens... 🌿💚✨`
     );
-
     data.scoreboardMessageId = sent.id;
     data.scoreboardChannelId = message.channel.id;
     saveData();
-
     await message.reply("✅ Scoreboard set!");
     return;
   }
 
-  // ─── Per-user Tracking ─────────────────────────────────────────────────────
-
   const userId = message.author.id;
   const now = Date.now();
 
-  // Init user if new
   if (!data.users[userId]) {
     data.users[userId] = {
       faction: "",
@@ -136,7 +114,7 @@ client.on("messageCreate", async (message) => {
 
   const user = data.users[userId];
 
-  // Session reset after 30 minutes of inactivity
+  // Session reset after 30 minutes
   if (user.sessionStart && now - user.sessionStart > 30 * 60 * 1000) {
     user.spriteSignals = 0;
     user.gremlinSignals = 0;
@@ -145,29 +123,16 @@ client.on("messageCreate", async (message) => {
     user.sessionStart = null;
   }
 
-  if (!user.sessionStart) {
-    user.sessionStart = now;
-  }
+  if (!user.sessionStart) user.sessionStart = now;
 
-  // ── Sprite signal: replying to someone (calm, engaged) ─────────────────────
-  if (message.reference) {
+  // Sprite signals
+  if (message.reference) user.spriteSignals += 1;
+  if (user.lastMessageTime && now - user.lastMessageTime > 2 * 60 * 1000) {
     user.spriteSignals += 1;
   }
 
-  // ── Sprite signal: calm re-entry (2+ min gap since last message) ───────────
-  if (
-    user.lastMessageTime &&
-    now - user.lastMessageTime > 2 * 60 * 1000
-  ) {
-    user.spriteSignals += 1;
-  }
-
-  // ── Gremlin signal: attachment spam ────────────────────────────────────────
-  if (message.attachments.size > 0) {
-    user.gremlinSignals += 1;
-  }
-
-  // ── Gremlin signal: burst messaging (< 10 seconds between messages) ─────────
+  // Gremlin signals
+  if (message.attachments.size > 0) user.gremlinSignals += 1;
   user.messageCount += 1;
   if (user.lastMessageTime && now - user.lastMessageTime < 10000) {
     user.gremlinSignals += 1;
@@ -175,10 +140,9 @@ client.on("messageCreate", async (message) => {
 
   user.lastMessageTime = now;
 
-  // ── React with 🌿 ───────────────────────────────────────────────────────────
   message.react("🌿").catch(() => {});
 
-  // ── Determine faction once enough signals (10+) ────────────────────────────
+  // Faction assignment
   if (!user.faction && (user.spriteSignals + user.gremlinSignals) >= 10) {
     if (user.spriteSignals > user.gremlinSignals) {
       user.faction = "sprite";
@@ -193,16 +157,11 @@ client.on("messageCreate", async (message) => {
         `👺 <@${userId}> the roots have claimed you. you walk the **Gremlin** path.`
       );
     }
-
     await updateScoreboard();
   }
 
-  // ── XP ─────────────────────────────────────────────────────────────────────
   user.xp = (user.xp || 0) + 1;
-
   saveData();
 });
-
-// ─── Login ───────────────────────────────────────────────────────────────────
 
 client.login(process.env.DISCORD_TOKEN);
