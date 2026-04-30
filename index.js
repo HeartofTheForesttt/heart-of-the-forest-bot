@@ -58,10 +58,9 @@ client.on("messageCreate", async (message) => {
   if (
     message.content.startsWith("!pixie ") &&
     isAdmin &&
-    message.channel.id === "1479228710417596519" &&
+    message.channel.id === "1479228710417596519"
   ) {
     const pixieMessage = message.content.slice(7);
-    const pixieChannel = message.guild.channels.cache.find(
     const pixieChannel = message.guild.channels.cache.get("1478863772998434839");
     );
     const openings = [
