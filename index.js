@@ -58,7 +58,7 @@ client.on("messageCreate", async (message) => {
   if (
     message.content.startsWith("!pixie ") &&
     message.member.permissions.has("Administrator") &&
-    message.channel.name === "spell-lab"
+    message.channel.name === "🧪・spell-lab"
   ) {
     const pixieMessage = message.content.slice(7);
     const pixieChannel = message.guild.channels.cache.find(
