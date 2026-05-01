@@ -142,7 +142,6 @@ client.on("messageCreate", async (message) => {
 
   user.lastMessageTime = now;
 
-  message.react("🌿").catch(() => {});
 
   if (!user.faction && (user.spriteSignals + user.gremlinSignals) >= 10) {
     if (user.spriteSignals > user.gremlinSignals) {
