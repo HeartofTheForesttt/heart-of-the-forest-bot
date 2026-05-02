@@ -79,9 +79,16 @@ client.on("messageCreate", async (message) => {
         .setDescription(`${random.text}\n\n🌿 *${pixieMessage}* 🌿`)
         .setThumbnail(random.img)
         .setFooter({ text: "✨ a message from the Goddess ✨" });
-      await pixieChannel.send({ embeds: [embed] });
-      await message.reply("🌸✨ The pixies have spoken. ✨🌸");
-      await message.delete();
+      const { WebhookClient } = require('discord.js');
+const webhookClient = new WebhookClient({ url: "https://discord.com/api/webhooks/1500254222392885401/i-WXFlMcXlHIpT5MkGp3r_zB8e4oFwXLbjaorsucm-COY29oWEyibxObUL7YM446mPqQ" });
+
+await webhookClient.send({
+  username: "The Goddess",
+  avatarURL: "https://cdn.discordapp.com/attachments/1479228710417596519/1500281737375121500/IMG_7104.png",
+  embeds: [embed]
+});
+await message.reply("🌸✨ The pixies have spoken. 🌟🌸");
+await message.delete();
     } else {
       await message.reply("❌ Could not find the pixie-post channel.");
     }
