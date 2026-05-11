@@ -172,3 +172,44 @@ await message.delete();
 });
 
 client.login(process.env.DISCORD_TOKEN);
+if (message.content === "!setscoreboard" && isAdmin) {
+    const sent = await message.channel.send(
+      `🌿🍀 **Heart of the Forest** 🍀🌿\n` +
+      `🌟 Sprite Magic: ${data.server.sprites}\n` +
+      `👺 Gremlin Mischief: ${data.server.gremlins}\n\n` +
+      `🌲 The forest listens... 🌿💚✨`
+    );
+    data.scoreboardMessageId = sent.id;
+    data.scoreboardChannelId = message.channel.id;
+    saveData();
+    await message.reply("✅ Scoreboard set!");
+    return;
+  }
+
+  const userId = message.author.id;
+  const now = Date.now();
+
+  if (!data.users[userId]) {
+    data.users[userId] = {
+      faction: "",
+      xp: 0,
+      spriteSignals: 0,
+      gremlinSignals: 0,
+      lastMessageTime: null,
+      sessionStart: null,
+      messageCount: 0,
+      lastBurstTime: null,
+    };
+  }
+
+  const user = data.users[userId];
+
+  if (user.sessionStart && now - user.sessionStart > 30 * 60 * 1000) {
+    user.spriteSignals = 0;
+    user.gremlinSignals = 0;
+    user.messageCount = 0;
+    user.lastBurstTime = null;
+    user.sessionStart = null;
+  }
+
+  if (!user.sessionStart) user.sessionStart = now;
