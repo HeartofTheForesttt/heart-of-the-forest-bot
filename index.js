@@ -9,6 +9,8 @@ const client = new Client({
   ],
 });
 
+const PIXIE_WEBHOOK_URL = process.env.PIXIE_WEBHOOK_URL;
+
 const dataFile = "data.json";
 
 let data = {
@@ -48,7 +50,6 @@ async function updateScoreboard() {
 client.once("clientReady", () => {
   console.log("🌲 Heart of the Forest awakens...");
 });
-
 client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
 
@@ -60,7 +61,6 @@ client.on("messageCreate", async (message) => {
     message.channel.id === "1479228710417596519"
   ) {
     const pixieMessage = message.content.slice(7);
-    const pixieChannel = message.guild.channels.cache.get("1478863772998434839");
 
     const openings = [
       { text: "✨🌸 *the pixies flutter... a message arrives from the distant realm...* 🌸✨", img: "https://cdn.discordapp.com/attachments/1479228710417596519/1499278383287369769/IMG_6998.png?ex=69f4374d&is=69f2e5cd&hm=eaefa996bac0d2eb152a6203ee6953ef7879ee392cc5c024104a8a38b2f23e54&" },
@@ -73,28 +73,22 @@ client.on("messageCreate", async (message) => {
 
     const random = openings[Math.floor(Math.random() * openings.length)];
 
-    if (pixieChannel) {
-      const embed = new EmbedBuilder()
-        .setColor(0xc084fc)
-        .setDescription(`${random.text}\n\n🌿 *${pixieMessage}* 🌿`)
-        .setThumbnail(random.img)
-        .setFooter({ text: "✨ a message from the Goddess ✨" });
-      const { WebhookClient } = require('discord.js');
-const webhookClient = new WebhookClient({ url: "https://discord.com/api/webhooks/1500254222392885401/i-WXFlMcXlHIpT5MkGp3r_zB8e4oFwXLbjaorsucm-COY29oWEyibxObUL7YM446mPqQ" });
+    const embed = new EmbedBuilder()
+      .setColor(0xc084fc)
+      .setDescription(`${random.text}\n\n🌿 *${pixieMessage}* 🌿`)
+      .setThumbnail(random.img)
+      .setFooter({ text: "✨ a message from the Goddess ✨" });
 
-await webhookClient.send({
-  username: "The Goddess",
-  avatarURL: "https://cdn.discordapp.com/attachments/1479228710417596519/1500281737375121500/IMG_7104.png",
-  embeds: [embed]
-});
-await message.reply("🌸✨ The pixies have spoken. 🌟🌸");
-await message.delete();
-    } else {
-      await message.reply("❌ Could not find the pixie-post channel.");
-    }
+    await fetch(PIXIE_WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ embeds: [embed.toJSON()] }),
+    });
+
+    await message.reply("🌸✨ The pixies have spoken. ✨🌸");
+    await message.delete();
     return;
   }
-
   if (message.content === "!setscoreboard" && isAdmin) {
     const sent = await message.channel.send(
       `🌿🍀 **Heart of the Forest** 🍀🌿\n` +
@@ -126,6 +120,7 @@ await message.delete();
   }
 
   const user = data.users[userId];
+
   if (user.sessionStart && now - user.sessionStart > 30 * 60 * 1000) {
     user.spriteSignals = 0;
     user.gremlinSignals = 0;
@@ -135,7 +130,6 @@ await message.delete();
   }
 
   if (!user.sessionStart) user.sessionStart = now;
-
   if (message.reference) user.spriteSignals += 1;
   if (user.lastMessageTime && now - user.lastMessageTime > 2 * 60 * 1000) {
     user.spriteSignals += 1;
@@ -148,7 +142,6 @@ await message.delete();
   }
 
   user.lastMessageTime = now;
-
 
   if (!user.faction && (user.spriteSignals + user.gremlinSignals) >= 10) {
     if (user.spriteSignals > user.gremlinSignals) {
@@ -172,44 +165,3 @@ await message.delete();
 });
 
 client.login(process.env.DISCORD_TOKEN);
-if (message.content === "!setscoreboard" && isAdmin) {
-    const sent = await message.channel.send(
-      `🌿🍀 **Heart of the Forest** 🍀🌿\n` +
-      `🌟 Sprite Magic: ${data.server.sprites}\n` +
-      `👺 Gremlin Mischief: ${data.server.gremlins}\n\n` +
-      `🌲 The forest listens... 🌿💚✨`
-    );
-    data.scoreboardMessageId = sent.id;
-    data.scoreboardChannelId = message.channel.id;
-    saveData();
-    await message.reply("✅ Scoreboard set!");
-    return;
-  }
-
-  const userId = message.author.id;
-  const now = Date.now();
-
-  if (!data.users[userId]) {
-    data.users[userId] = {
-      faction: "",
-      xp: 0,
-      spriteSignals: 0,
-      gremlinSignals: 0,
-      lastMessageTime: null,
-      sessionStart: null,
-      messageCount: 0,
-      lastBurstTime: null,
-    };
-  }
-
-  const user = data.users[userId];
-
-  if (user.sessionStart && now - user.sessionStart > 30 * 60 * 1000) {
-    user.spriteSignals = 0;
-    user.gremlinSignals = 0;
-    user.messageCount = 0;
-    user.lastBurstTime = null;
-    user.sessionStart = null;
-  }
-
-  if (!user.sessionStart) user.sessionStart = now;
