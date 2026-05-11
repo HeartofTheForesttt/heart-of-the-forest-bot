@@ -9,7 +9,7 @@ const client = new Client({
   ],
 });
 
-const PIXIE_WEBHOOK_URL = "https://discord.com/api/webhooks/1500285707447439512/UbCcJxycrGmjPqNN-3jyhn_2kWppySbk6uWgNm8M1p2Bk6inzzNQUYXEy7ZSaUAJ7wXE";
+const PIXIE_WEBHOOK_URL = "https://discord.com/api/webhooks/1500285707447439512/UbcCdxycrGmjPqNN-3Jyhn_2kWppySbk6uWgNmn8M1p2Bk6inzzNQUYXEy7ZSaUAJ7wXE";
 
 const dataFile = "data.json";
 
